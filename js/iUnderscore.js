@@ -21,11 +21,8 @@
         }
         this.wrap=option;
     };
-    _.uniq=function(){
-        console.log("静态方法执行数组去重！");
-    };
 
-    // 遍历 数组  对象
+    // （1）.遍历 数组  对象
     _.each = function( target, callback ){
         var key,i = 0;
         if( toString.call(target)=="[object Array]" ){
@@ -50,10 +47,10 @@
         _.each( obj, function( name ){
             //获取静态方法
             var func = obj[name];
-            //扩展原型方法
+            //（2）.扩展原型方法
             _.prototype[name] = function(){
-                //数组合并,拼接静态方法所需参数。
                 var args = [this.wrap];
+                //（3）.数组合并,拼接静态方法所需参数：参数1-this.wrap，参数2-arguements。
                 push.apply( args, arguments );
                 //执行静态方法
                 return func.apply( this, args );
@@ -68,6 +65,25 @@
                 return toString.call( obj ) === "[object "+name+"]";
             }
         });
+    }(_);
+
+    ~function(_){
+        /*数组操作*/
+        _.uniqTest=function(){
+            console.log("静态方法去重测试！");
+        };
+        _.uniq=function(target,callback){
+            //简化版去重
+            var result = [];
+            for( var i=0; i<target.length; i++ ){
+                var computed = callback ? callback(target[i]) : target[i];
+                if(result.indexOf(computed) === -1 ){
+                    result.push(computed)
+                }
+            }
+            return result;
+        };
+
     }(_);
     _.mixin( _ );
     return _;

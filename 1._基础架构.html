@@ -9,8 +9,14 @@
 </body>
 <script src="./js/iUnderscore.js"></script>
 <script>
-    _.uniq();
-    _().uniq();
+    //1.测试基础架构
+    _.uniqTest();
+    _().uniqTest();
     console.log(_([]).isArray(), _.isArray([]));
+    //2.测试去重方法
+    var result = _([1,2,3,4,5,2,4,"a","A"]).uniq(function( value ){
+        return typeof value === "string" ? value.toLowerCase() : value;
+    });
+    console.log(result)
 </script>
 </html>
