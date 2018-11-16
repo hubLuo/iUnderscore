@@ -12,16 +12,63 @@
             //非模块化客户端
             (root._=root[name]=factory());
 }(this,function(){
-    var _=function(){
+    //减少原型链的查询
+    var push = Array.prototype.push;
+
+    var _=function(option){
         if(!(this instanceof _)){
-            return new _();
+            return new _(option);
         }
+        this.wrap=option;
     };
     _.uniq=function(){
         console.log("静态方法执行数组去重！");
     };
-    _.prototype.uniq=function(){
-        console.log("动态方法执行数组去重！");
+
+    // 遍历 数组  对象
+    _.each = function( target, callback ){
+        var key,i = 0;
+        if( toString.call(target)=="[object Array]" ){
+            var length = target.length;
+            for( ;i<length; i++ ){
+                /*注意它与对象情况下所传参数顺序是不样，这取决于参数重要性来决定的
+                 * 数组时：值要比下标用到的比重要大，而对象时：键名比值的权重大。
+                 * */
+                callback.call( target, target[i], i );//参数顺序：value值，index下标；
+            }
+        } else {
+            for( key in target ){
+                console.log(target.hasOwnProperty(key),key);
+                target.hasOwnProperty(key)&&callback.call( target, key, target[key] );//参数顺序：key键，vaule值；
+            }
+        }
+
     }
+
+    //mixin   _   遍历  数组
+    _.mixin = function( obj ){
+        _.each( obj, function( name ){
+            //获取静态方法
+            var func = obj[name];
+            //扩展原型方法
+            _.prototype[name] = function(){
+                //数组合并,拼接静态方法所需参数。
+                var args = [this.wrap];
+                push.apply( args, arguments );
+                //执行静态方法
+                return func.apply( this, args );
+            }
+        });
+    };
+
+    ~function(_){
+        /*类型检测*/
+        _.each(["Function", "String", "Object" , "Number","Array"], function( name ){  //key  value
+            _["is"+name] = function( obj ){
+                return toString.call( obj ) === "[object "+name+"]";
+            }
+        });
+    }(_);
+    _.mixin( _ );
     return _;
 },"_");
