@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+<script type="text/javascript" src="./js/iUnderscore.js"></script>
+<script type="text/javascript">
+    /*//1.不是用链式结果
+    var result = _([1,2,3,4,5,2,4,"a","A"]).uniq(function( value ){
+        return typeof value === "string" ? value.toLowerCase() : value;
+    });
+    console.log(result);*/
+    //2.链接式的调用结果
+    //2.1返回带结果实例方式1
+    var result = _([1,2,3,4,5,2,4,"a","A"]).chain().uniq(function( value ){
+        return typeof value === "string" ? value.toLowerCase() : value;
+    });
+    console.log(result);
+    //2.2返回带结果实例方式2
+    console.log(_.chain([1,2,3,4,5,2,4,"a","A"]).uniq());
+    //2.3只返回结果
+    console.log(_.chain([1,2,3,4,5,2,4,"a","A"]).uniq().value());
+     //实例对象的引用    处理好数据的结果
+     //_ {wrap: Array(7), _chain: true}.map()
+
+     //_([1,2,3,4,5,2,4,"a","A"]).chain()   ==  instance  chain  wrap
+     /*var result = _([1,2,3,4,5,2,4,"a","A"]).chain().uniq(function( value ){
+     return typeof value === "string" ? value.toLowerCase() : value;
+     });*/
+
+
+</script>
+</body>
+</html>

@@ -35,13 +35,32 @@
             }
         } else {
             for( key in target ){
-                console.log(target.hasOwnProperty(key),key);
+                //console.log(target.hasOwnProperty(key),key);
                 target.hasOwnProperty(key)&&callback.call( target, key, target[key] );//参数顺序：key键，vaule值；
             }
         }
 
     }
 
+    //（4.2）创建一个带有链式调用属性的新实例
+    _.chain = function( obj ){
+        var instance = _( obj );
+        //var instance = (this instanceof _) ?this:_( obj );
+        //var instance = this;
+        instance._chain = true;   //_chain 标识当前的实例对象支持链接式的调用
+        return instance;
+    }
+
+    //（4.1）中间辅助函数  result(实例对象, 处理好数据最终的结果 )
+    var result = function( instance, obj ){
+        //不调用链式则返回结果，否则返回由结果为参数的新实例_(obj),且带有_chain属性为true的新实例_(obj).chain()。
+        //我们可以看到当链式调用时，实际上是创建了2次新实例，一次为了传结果，一次是为了设置_chain属性为true;
+        return instance._chain ?_(obj).chain() : obj;
+    }
+    //返回结果
+    _.prototype.value = function(){
+        return this.wrap;
+    }
     //mixin   _   遍历  数组
     _.mixin = function( obj ){
         _.each( obj, function( name ){
@@ -53,7 +72,8 @@
                 //（3）.数组合并,拼接静态方法所需参数：参数1-this.wrap，参数2-arguements。
                 push.apply( args, arguments );
                 //执行静态方法
-                return func.apply( this, args );
+                //return func.apply( this, args );
+                return result(this,func.apply(this,args));//（4）.中间函数来处理实例对象和执行结果
             }
         });
     };
