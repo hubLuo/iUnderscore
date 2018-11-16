@@ -5,7 +5,12 @@
  *功能：
  */
 ~function(root,factory,name){
-    root._=root[name]=factory(root,name);
+    // 服务端模块化---commonjs标准---模块入口module.exports
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+        //客户端模块化---seajs(CMD)/Requirejs(AMD)---模块入口define()
+        typeof define === 'function' && define.amd ? define(factory) :
+            //非模块化客户端
+            (root._=root[name]=factory());
 }(this,function(){
     var _=function(){
         if(!(this instanceof _)){
