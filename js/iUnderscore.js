@@ -56,12 +56,8 @@
         //不调用链式则返回结果，否则返回由结果为参数的新实例_(obj),且带有_chain属性为true的新实例_(obj).chain()。
         //我们可以看到当链式调用时，实际上是创建了2次新实例，一次为了传结果，一次是为了设置_chain属性为true;
         //return instance._chain ?_(obj).chain() : obj;
-        if(obj instanceof _) {
-            return obj;
-        }else{
-            instance.wrap=obj;
-            return instance;
-        }
+        instance !==obj&&(instance.wrap=obj);
+        return instance;
     }
     //返回结果
     _.prototype.value = function(){
