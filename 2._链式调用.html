@@ -23,10 +23,16 @@
     //2.3只返回结果
     console.log(_.chain([1,2,3,4,5,2,4,"a","A"]).uniq().value());*/
 
-    //测试3.链式改进
-    console.log(_([1,2,3,4,5,2,4,"a","A"]).uniq().uniq(function( value ){
+    //测试3.链式改进1
+    /*console.log(_([1,2,3,4,5,2,4,"a","A"]).uniq().uniq(function( value ){
         return typeof value === "string" ? value.toLowerCase() : value;
-    }).value());
+    }).value());*/
+    //测试4.链式改进2
+    console.log(_([1,2,3,4,5,2,4,"a","A"]).chain().uniq().uniq(function( value ){
+        return typeof value === "string" ? value.toLowerCase() : value;
+    }).value());//实例使用chain
+    console.log(_([1,2,3,4,5,2,4,"a","A"]).uniq().value());//实例也可以不使用chain
+    console.log(_.chain([1,2,3,4,5,2,4,"a","A"]).uniq().value());//静态方法想连写必须要使用chain
 </script>
 </body>
 </html>
