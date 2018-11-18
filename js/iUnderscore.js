@@ -72,8 +72,9 @@
                 //（3）.数组合并,拼接静态方法所需参数：参数1-this.wrap，参数2-arguements。
                 push.apply( args, arguments );
                 //执行静态方法
-                //return func.apply( this, args );
-                return result(this,func.apply(this,args));//（4）.中间函数来处理实例对象和执行结果
+                this.wrap=func.apply( this, args )
+                return this;
+                //return result(this,func.apply(this,args));//（4）.中间函数来处理实例对象和执行结果
             }
         });
     };

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+<script type="text/javascript" src="./js/iUnderscore.js"></script>
+<script type="text/javascript">
+
+    // 目标源  （遍历）迭代器   回调函数
+    // 通过对list里的每个元素调用转换函数(iteratee迭代器)生成一个与之相对应的数组。
+    var obj ={name:"max"}
+    console.log(_.map([1,2,3],function( value, i, obj ){
+        console.log(this)
+        return  value*3;
+    },obj));
+
+
+</script>
+</body>
+</html>
