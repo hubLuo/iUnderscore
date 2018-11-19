@@ -5,18 +5,68 @@
     <title>Document</title>
 </head>
 <body>
+<!--<script type="text/javascript" src="./js/Underscore.js"></script>-->
 <script type="text/javascript" src="./js/iUnderscore.js"></script>
 <script type="text/javascript">
 
     // 目标源  （遍历）迭代器   回调函数
     // 通过对list里的每个元素调用转换函数(iteratee迭代器)生成一个与之相对应的数组。
+
+    //1.测试加强的forEach
+    _([1,2,3,4,5]).forEach(function(value,i){
+        if(value>2){return false;}//控制循环执行
+        console.log("控制循环---value:",value," i:",i)
+    });//1,2
+    _([1,2,3,4,5]).forEach(function(value,i){
+        console.log("控制起点---value:",value," i:",i)
+    },4);//控制循环起始点 //5
+
+    _([1,2,3,4,5]).forEach(function(value,i){
+        console.log("控制起点和方向A---value:",value," i:",i)
+    },4,-1);//控制循环起始点,和方向://1
+
+    _([1,2,3,4,5]).forEach(function(value,i){
+        console.log("控制起点和方向B---value:",value," i:",i)
+    },2,-2);//控制循环起始点,和方向:// 3,1
+
+    _({name:"LQ",sex:"man",age:20}).forEach(function(value,i){
+        console.log("对象控制起点---value:",value," i:",i)
+    },2);//控制循环起始点：//age:20
+
+    _({name:"LQ",sex:"man",age:20}).forEach(function(value,i){
+        console.log("对象控制起点和方向---value:",value," i:",i)
+    },2,-1);//控制循环起始点,和方向://name:"LQ"
+    //2.测试map
     var obj ={name:"max"}
     console.log(_.map([1,2,3],function( value, i, obj ){
         console.log(this)
         return  value*3;
     },obj));
+    console.log(_.map([1,2,3]));
 
+    //3.测试map迭代字符，对象
+    /*console.log(_.map([{name:"lq"},{name:"jk"},{bj:"lq"},{name:"lq"},{name:'zj'}],{name:'lq'}));
+    console.log(_.map({jd:{name:"lq"},bj:"jk",dd:{bj:"lq"},dc:{name:"lq"},cd:{name:"zj"}},{name:'lq'}));
+    console.log(_.map(["name",{name:"jk"},{bj:"lq"},{name:"lq"},{name:'zj'}],"name"));*/
 
+    //4.测试mixin扩展方法
+    _.mixin({lq:function(){
+        console.log("okk");
+    }});
+    _.lq();
+    _().lq();
+
+    //5.测试times
+    var times=_(5).times(function(i){return i*10;}).value();
+    console.log(times);
+
+    //6.测试reduce
+    console.log(_.reduce([1,2,3,4,5,6],function(memo, value, index, obj){
+        return memo+value;
+    }));
+    console.log(_.reduce([1,2,3,4,5,6],function(memo, value, index, obj){
+        return memo+value;
+    },5));
 </script>
 </body>
 </html>
