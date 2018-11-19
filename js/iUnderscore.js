@@ -118,8 +118,26 @@
             for(var i in obj){
                 keys.push(i);
             }
+            // IE9 兼容性的问题   不可枚举属性的集合
+            collect( obj, keys );
             return keys;
         };
+        function collect( obj, keys ){
+            // hasEnumBug   true IE9>
+            var hasEnumBug = {valueOf: null}.propertyIsEnumerable('valueOf');
+            if(hasEnumBug){return keys};
+            var noEnumProps = ["constructor","hasOwnProperty","isPrototypeOf","propertyIsEnumerable","toLocaleString","toString","valueOf"];
+            var nElen =  noEnumProps.length,
+                constructor = obj.constructor,   //构造函数
+                proto = constructor.prototype || Object.prototype;;   //原型对象
+            while( nElen-- ){
+                var key = noEnumProps[nElen];
+                if( key in obj &&obj[key] !== proto[key] ){
+                    keys.push(key);
+                }
+            }
+        }
+
         _.iterate=function(cb, context, args){
             var type=toString.call(cb);
             //1.类型迭代器类型判断,执行相应操作；

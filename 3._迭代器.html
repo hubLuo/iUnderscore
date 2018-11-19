@@ -67,6 +67,11 @@
     console.log(_.reduce([1,2,3,4,5,6],function(memo, value, index, obj){
         return memo+value;
     },5));
+
+    //7.测试对象属性的描述对象
+    var man={name:"lq",getName:function(){return this.name}};
+    var wolfe={fn:man.getName};
+    console.log(wolfe.fn());//undefined
 </script>
 </body>
 </html>
