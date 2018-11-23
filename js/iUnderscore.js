@@ -201,7 +201,7 @@
         var createReduce = function( dir ){
             //缩减遍历
             var reduce = function( obj, iteratee, memo, init ){
-                var start= 0;
+                var start= 0,obj=obj||[];
                 if(!init){
                     //如果没有传memo则使用数据源第一项
                     var keys= toString.call(obj)!=="[object Array]" &&obj.length===void 0&& _.keys(obj);
@@ -211,7 +211,6 @@
                 };
                 _.forEach(obj,function(curValue,curKey,tar){
                     memo = iteratee(memo, curValue, curKey, tar )
-                    console.log(memo+"@@@@")
                 },start,dir);
                 return memo;
             }
@@ -233,6 +232,66 @@
             },
             reduce:createReduce( 1 )   //1 || -1    dir
         });
+    }(_);
+
+    ~function(_){
+        /*
+         包装器  包装函数fn  使他支持rest参数
+         */
+        _.restArgs = function( fn ){  //fn  add 源函数
+            return function(){    //参数传递  arguments  实参
+                // arguments  ?
+                var argsLen = fn.length;   //3
+                var startIndex = argsLen-1;  //2  rest 位置
+                //为rest 参数开辟数组存储实参
+                var args = Array(argsLen);
+                //rest 参数
+                var rest = Array.prototype.slice.call(arguments,startIndex);
+                //单一参数的处理
+                for(var i=0; i<startIndex; i++ ){  //2
+                    args[i] = arguments[i];
+                }
+                //["zs","ls",["wlw", "lmz"]]  ["形参","形参",["rest[0]", "rest[1]"]]
+                args[startIndex] = rest;
+                return fn.apply(this, args );   //this  window
+            }
+        }
+    }(_);
+
+    ~function(_){
+        //需要逃逸字符
+        var escapeMap = {   //对象.属性
+            "<" : "&lt;",
+            ">" : "&gt;",
+            "&" : "&amp;",
+            '"' : "&quot;",
+            "'" : "&#39;"
+        }
+
+        var createEscaper = function(map){
+            //逃逸
+            var escaper = function(match){
+                return map[match];
+            }
+
+            //创建正则表达式    _.keys(Map).join('|')
+            //| 逻辑或
+            //["<",">"]   "<"|">"|...
+            var exp = '(?:' + _.keys(map).join('|') + ')';
+            console.log(exp)
+            var testExp = new RegExp(exp);
+            var replaceExp = new RegExp(exp, "g");
+
+            return function( string ){
+                console.log( string )
+                string = string == null ? '' : ''+string;
+                console.log(testExp.test( string ))   //？
+                return testExp.test( string ) ? string.replace(replaceExp,escaper) : string;
+            }
+        };
+
+        _.escape = createEscaper(escapeMap);
+
     }(_);
     _.mixin( _ );
     return _;

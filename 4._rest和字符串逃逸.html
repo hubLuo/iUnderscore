@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+<!--<script type="text/javascript" src="./js/Underscore.js"></script>-->
+<script type="text/javascript" src="./js/iUnderscore.js"></script>
+<script type="text/javascript">
+    //1.函数式编程
+    //副作用
+    function adder(a){    //纯函数
+        return  a+1;
+    }
+    adder(2);     //3
+    adder(2);     //3
+
+    var obj = 2;
+    function adder2(a){    //不是纯函数
+        return  a+obj;
+    }
+
+    adder2(2);   //4
+    obj = 3;
+    adder2(2);   //5
+
+    //2.rest
+    function add(a,rest){
+        console.log(rest);
+        return _.reduce(rest, function( memo, value, i, obj ){
+            return memo+value;
+        },a);
+
+    }
+
+    //包装器的方法
+    var addRest = _.restArgs(add);   //包装
+    console.log(addRest(1,2,3,4));
+
+    /*call   this
+    在JavaScript中你不可能单独的去调用某个方法。   对象.方法
+    对象.方法调用的时候  内部运行的this 所指向就是当前这个对象
+    this   ==  对象*/
+
+    function fn( a, b, rest){    //  startIndex  == 2
+        console.log(this,rest)  //[]
+    }
+    //包装器的方法
+    var fnRest = _.restArgs(fn);   //包装
+    fnRest("zs","ls", "wlw", "lmz");   //["wlw", "lmz"]
+
+    //3.字符串逃逸
+    var result =  _.escape("<a>老司机带带我</a>");
+    //var result =  _.escape("sdsdfdsasf&&&^&%&%^&");
+    //var result=_.escape("LQ");
+    document.write(result);
+</script>
+</body>
+</html>
