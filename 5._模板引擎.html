@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+<script type="text/javascript" src="./js/iUnderscore.js"></script>
+<script type="text/javascript" src="./js/jquery-2.0.3.js"></script>
+<script type="text/javascript">
+    //1.使用字符串逃逸防止XSS跨域脚本攻击
+    var obj={name:"<script>alert(1)<\/script>"};
+    var result= _.escape(obj.name);//用户输入的html字符串转变为普通字符串；
+    $("body").append(result);
+
+    //2.字符串反逃逸（编译）。
+    var str= _.unescape("&amp;&amp;");
+    console.log(str);
+
+    //3.template模板引擎原理
+    //解析规则----模板替换原理
+    var rules = {
+        //规则   插入变量        正则
+        interpolate:/\{\{([\s\S]+?)\}\}/
+        //  植入js逻辑代码
+        //  字符串逃逸
+    }
+
+    console.log(rules.interpolate.source)
+    //最终的正则匹配/\{\{([\s\S]+?)\}\}|植入js逻辑代码|字符串逃逸/
+    var matcher =  new RegExp([rules.interpolate.source].join("|"),"g");
+    var template = "hello{{name}}";
+    var data = {name:"LQ"}
+    //模板编译    渲染
+    function render(template,data){    //模板编译    渲染
+        //match  第一个参数与正则模式相匹配的文本,interpolate 与正则模式子表达式相匹配的文本,offset      正则模式与字符串所相匹配的第一个字符的位置
+        //stringobj
+        //模板替换
+        return template.replace(matcher,function(match, interpolate ){
+            console.log(data[interpolate]);
+            return data[interpolate];
+        })
+    }
+    console.log(render(template,data));
+
+    //4.函数实例3种方式:
+    //支持模板中植入js逻辑代码 ?依靠function做字符串的拼接   new Function
+
+    //(1)函数声明 函数对象
+    function fn(name){
+        console.log("hello"+name)
+     }
+     fn("函数声明");
+
+     //(2)函数表达式  函数对象
+     var fn1 = function(name){
+         console.log("hello"+name)
+     }
+     fn1("函数表达式");
+
+     //(3)函数构造
+     var body = "console.log('hello'+name)";
+     //var body = "alert'hello'+name'";//通过报错可以看到它所执行的匿名函数体
+    //等同于：(function anonymous(name){console.log("hello"+name)});
+     var fn2=new Function("name",body);    //参数arg1,,arg2...  最后一个参数是函数的主体内容
+     fn2("函数构造器");
+
+
+    //5.模板函数
+    //(1)绑定变量数据
+    function variable(obj,_){
+        var _t,_p='';with(obj||{}){
+            _p+=''+((_t=( name )) ==null?'':_t)+ '';
+        }
+        return _p;
+    }
+    console.log(variable({name:"LQ come in"}));
+
+    //6.template模板引擎
+    var compile = _.template("hello: <%= name %>");   //模板函数   编译
+    var html = compile({name:"LQ come in"});   //渲染
+    console.log(html)
+    /*
+     var compile = _.template("hello: <% alert(123) %>");   //模板函数   编译
+     var html = compile();   //渲染
+     console.log(html)*/
+</script>
+</body>
+</html>

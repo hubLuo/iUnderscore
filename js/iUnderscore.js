@@ -259,39 +259,105 @@
     }(_);
 
     ~function(_){
-        //需要逃逸字符
-        var escapeMap = {   //对象.属性
-            "<" : "&lt;",
-            ">" : "&gt;",
-            "&" : "&amp;",
-            '"' : "&quot;",
-            "'" : "&#39;"
-        }
-
-        var createEscaper = function(map){
-            //逃逸
-            var escaper = function(match){
-                return map[match];
+        //需要逃逸的字符   反逃逸  编译  &amp;
+        var escapeMap = {   //反转
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#x27;',
+            '`': '&#x60;'
+        };
+        _.invert = function( obj ){
+            var result = {};  //反转的结果
+            var keys = _.keys(escapeMap);
+            for(var i = 0; i<keys.length; i++){
+                result[obj[keys[i]]] = keys[i];   //属性反转成值   '&'
             }
 
+            return result;
+        }
+        var unescapeMap = _.invert(escapeMap);
+        console.log(unescapeMap);
+        // 工厂函数
+        var createEscaper = function(map) {
+            var escaper = function(match) {
+                return map[match];
+            };
+            //匹配正则
             //创建正则表达式    _.keys(Map).join('|')
             //| 逻辑或
             //["<",">"]   "<"|">"|...
-            var exp = '(?:' + _.keys(map).join('|') + ')';
-            console.log(exp)
-            var testExp = new RegExp(exp);
-            var replaceExp = new RegExp(exp, "g");
-
-            return function( string ){
-                console.log( string )
-                string = string == null ? '' : ''+string;
-                console.log(testExp.test( string ))   //？
-                return testExp.test( string ) ? string.replace(replaceExp,escaper) : string;
-            }
+            var source = '(?:' + _.keys(map).join('|') + ')';
+            var testRegexp = new RegExp(source);
+            var replaceRegexp = new RegExp(source, 'g');
+            return function(string) {
+                string = string == null ? '' : '' + string;
+                return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
+            };
         };
-
+        //字符串逃逸
         _.escape = createEscaper(escapeMap);
+        //字符串反逃逸
+        _.unescape = createEscaper(unescapeMap);
 
+    }(_);
+
+    ~function(_){
+        //解析规则：模板替换规则
+        _.templateSettings = {
+            //执行体  植入js逻辑代码
+            evalute:/<%([\s\S]+?)%>/g,
+            //插入变量
+            interpolate:/<%=([\s\S]+?)%>/g,
+            //字符串逃逸
+            escape:/<%-([\s\S]+?)%>/g,
+        };
+        /*
+         模板引擎
+         text  模板字符串
+         settings 自定义配置
+         */
+        _.template = function( text, settings ){
+            //extend({},settings,_.templateSettings)
+            settings = _.templateSettings;
+            var matcher =RegExp([
+                settings.escape.source,
+                settings.interpolate.source,
+                settings.evalute.source,
+            ].join("|"),"g");
+
+            //模板函数体字符串source  字符串保存函数体内部要执行的主体内容   执行头
+            var source ="_p+='";    //_p+='
+            text.replace(matcher,function( match, escape, interpolate, evalute){
+                //进行字符串切割拼接工作
+                if(escape){
+
+                }else if(interpolate){
+                    console.log("??>>",interpolate)
+                    //((_t=interpolate) ==null?" ":_t);  _p+='((_t=interpolate) ==null?" ":_t)
+                    source +="'+\n((_t=("+interpolate+")) ==null?'':_t)+\n'";
+
+                }else if(evalute){
+
+                }
+            });
+
+            source+="';";    // _p+='((_t=interpolate) ==null?" ":_t)';
+            console.log(source);
+            //with 限定作用域
+            if(!settings.variable)source='with(obj||{}){\n'+source+'}\n';
+            source="var _t,_p='';"+source+'return _p;\n';
+            console.log(source);
+            //渲染函数  "obj"  == data   "_" ==undesocre   source ==  函数主体内容
+            var render = new Function("obj","_",source);
+            var template = function(data){
+                //返回模板函数
+                return render.call(this,data,_);
+            }
+
+            return template;
+        };
     }(_);
     _.mixin( _ );
     return _;
