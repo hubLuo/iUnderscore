@@ -67,7 +67,7 @@
 
 
     //5.模板函数
-    //(1)绑定变量数据
+    //(1)模板函数体字符串:绑定变量数据
     function variable(obj,_){
         var _t,_p='';with(obj||{}){
             _p+=''+((_t=( name )) ==null?'':_t)+ '';
@@ -76,14 +76,47 @@
     }
     console.log(variable({name:"LQ come in"}));
 
+    //(2)模板函数体字符串:字符串的逃逸
+    function escape(obj,_){
+        var _t,_p='';
+        //source   主体逻辑
+        with(obj||{}){
+            _p+=''+((_t= name) ==null?'':_.escape(_t))+'';
+        };
+        return _p;   //interpolate   hello: max
+    }
+    console.log(escape({name:"<a>"},_));
+
+    //(3)模板字符串  js逻辑代码
+    var FNbody=function(){console.log("执行JS");};
+    function evalute(obj,_){
+        var _t,_p='';
+        //source   主体逻辑
+        with(obj||{}){
+            _p+='';
+            FNbody();
+            _p+='';
+        };
+        return _p;   //interpolate   hello: max
+    }
+    evalute();
+
     //6.template模板引擎
-    var compile = _.template("hello: <%= name %>");   //模板函数   编译
-    var html = compile({name:"LQ come in"});   //渲染
+    var compile = _.template("绑定变量数据': <%= name %> is early <%= name %> ");   //模板函数   编译
+    var html = compile({name:"LQ come here"});   //渲染
     console.log(html)
-    /*
-     var compile = _.template("hello: <% alert(123) %>");   //模板函数   编译
-     var html = compile();   //渲染
-     console.log(html)*/
+
+    var compile = _.template("字符串逃逸\\\\: <%-value %>");   //模板函数   编译
+    var html = compile({value:"<a>"});   //渲染
+    console.log(html)
+    var compile = _.template("<% console.log('执行JS逻辑代码') %>");   //模板函数   编译
+    var html = compile();   //渲染
+    //console.log(html)
+
+    //7.with性能优化
+    var compile = _.template("with性能优化': <%= info.name %> ",{variable:"info"});   //模板函数   编译
+    var html = compile({name:"LQ is fastest!"});   //渲染
+    console.log(html)
 </script>
 </body>
 </html>

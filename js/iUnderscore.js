@@ -313,14 +313,41 @@
             //字符串逃逸
             escape:/<%-([\s\S]+?)%>/g,
         };
+        //需要转义的字符
+        var escapeCodes={
+            "'":"'",// \\'
+            "\\":"\\",// \\\\
+            "\r":"r",// \\\r
+            "\n":"n"//  \\\n
+        };
+        //转义的正则
+        var escapeCodesExp=/\\|'|\r|\n/g;
+        //转义字符串
+        var escapeChar=function(match){
+          return  "\\"+escapeCodes[match];
+        };
+        //属性扩展方法，浅拷贝；
+        _.extend=function(){
+            var target=arguments[0]||{},i= 1,length=arguments.length;
+            if(typeof target!=="object"){
+                target={};
+            }
+            for(;i<length;i++){
+                if(arguments[i] !=null){//包括了undefined情况
+                    for(var key in arguments[i]){
+                        target[key]=arguments[i][key];
+                    }
+                }
+            }
+            return target;
+        };
         /*
          模板引擎
          text  模板字符串
          settings 自定义配置
          */
         _.template = function( text, settings ){
-            //extend({},settings,_.templateSettings)
-            settings = _.templateSettings;
+            settings = _.extend({},settings,_.templateSettings);
             var matcher =RegExp([
                 settings.escape.source,
                 settings.interpolate.source,
@@ -329,28 +356,31 @@
 
             //模板函数体字符串source  字符串保存函数体内部要执行的主体内容   执行头
             var source ="_p+='";    //_p+='
-            text.replace(matcher,function( match, escape, interpolate, evalute){
-                //进行字符串切割拼接工作
+            var index=0;
+            text.replace(matcher,function( match, escape, interpolate, evalute,offset){
+                //进行模板字符串切割拼接工作
+                //指向起始点前部分
+                var str=text.slice(index,offset);//当前正则所匹配的子字符串前部分字符串
+                source +=str.replace(escapeCodesExp,escapeChar);//字符串转义；
+                //重置字符串切割的起始点:指向起始点后部分
+                index+=offset+match.length;//当前正则所匹配的子字符串后部分字符串
                 if(escape){
-
+                    source +="'+\n((_t=("+escape+")) ==null?'':_.escape(_t))+\n'";
                 }else if(interpolate){
-                    console.log("??>>",interpolate)
                     //((_t=interpolate) ==null?" ":_t);  _p+='((_t=interpolate) ==null?" ":_t)
                     source +="'+\n((_t=("+interpolate+")) ==null?'':_t)+\n'";
 
                 }else if(evalute){
-
+                    source +="';\n"+evalute+"\n_p+='";
                 }
             });
 
             source+="';";    // _p+='((_t=interpolate) ==null?" ":_t)';
-            console.log(source);
             //with 限定作用域
             if(!settings.variable)source='with(obj||{}){\n'+source+'}\n';
             source="var _t,_p='';"+source+'return _p;\n';
-            console.log(source);
             //渲染函数  "obj"  == data   "_" ==undesocre   source ==  函数主体内容
-            var render = new Function("obj","_",source);
+            var render = new Function(settings.variable || "obj","_",source);
             var template = function(data){
                 //返回模板函数
                 return render.call(this,data,_);
